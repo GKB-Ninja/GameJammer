@@ -44,15 +44,15 @@ public class EventManager : MonoBehaviour
         textLog.text += eventDescription + "\n";
 
         // Update player stats based on the event
-        if (eventDescription.Contains("battle"))
+        if (eventDescription.Contains("You encountered a rogue AI! Prepare for battle!"))
         {
             playerStats.TakeDamage(10); // Example: Lose 10 health in a battle
         }
-        else if (eventDescription.Contains("credits"))
+        else if (eventDescription.Contains("You found a stash of credits! +20 Credits!"))
         {
             playerStats.AddCredits(20); // Example: Gain 20 credits
         }
-        else if (eventDescription.Contains("trap"))
+        else if (eventDescription.Contains("You triggered a trap. You took 10 damage."))
         {
             playerStats.TakeDamage(10); // Example: Lose 10 health from a trap
         }

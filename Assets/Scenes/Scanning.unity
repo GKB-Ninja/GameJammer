@@ -268,7 +268,6 @@ GameObject:
   - component: {fileID: 421222695}
   - component: {fileID: 421222694}
   - component: {fileID: 421222693}
-  - component: {fileID: 421222692}
   m_Layer: 5
   m_Name: TheScan
   m_TagString: Untagged
@@ -295,23 +294,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &421222692
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 421222690}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 336aaf7243285a5449134b793c1e05b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxSize: 15
-  duration: 3
-  collisionLayer:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!58 &421222693
 CircleCollider2D:
   m_ObjectHideFlags: 0
