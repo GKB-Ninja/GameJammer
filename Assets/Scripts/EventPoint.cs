@@ -30,7 +30,7 @@ public class EventPoint : MonoBehaviour
                 eventManager.TriggerEvent("You found a stash of credits! +20 Credits!");
                 break;
             case 2:
-                eventManager.TriggerEvent("You triggered a trap! -10 Health!");
+                eventManager.TriggerEvent("You triggered a trap. You took 10 damage.");
                 break;
         }
     }

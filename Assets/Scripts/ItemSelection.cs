@@ -33,6 +33,8 @@ public class ItemSelection : MonoBehaviour
             Debug.Log("You bought a Weapon!");
             UpdateCreditsUI();
             SaveCredits();
+            PlayerPrefs.SetInt("weaponItem", 1);
+            Debug.Log("Weapon Item: " + PlayerPrefs.GetInt("weaponItem"));
         }
         else
         {
@@ -48,6 +50,8 @@ public class ItemSelection : MonoBehaviour
             Debug.Log("You bought Armor!");
             UpdateCreditsUI();
             SaveCredits();
+            PlayerPrefs.SetInt("armorItem", 1);
+            Debug.Log("Armor Item: " + PlayerPrefs.GetInt("armorItem"));
         }
         else
         {
@@ -63,6 +67,8 @@ public class ItemSelection : MonoBehaviour
             Debug.Log("You bought a Radar!");
             UpdateCreditsUI();
             SaveCredits();
+            PlayerPrefs.SetInt("radarItem", 1);
+            Debug.Log("Radar Item: " + PlayerPrefs.GetInt("radarItem"));
         }
         else
         {
