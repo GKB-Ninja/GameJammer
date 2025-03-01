@@ -13,6 +13,7 @@ public class ItemSlotInterac : MonoBehaviour
     {
         // Initialize the array based on the number of children
         childrenInTrigger = new bool[transform.childCount];
+        Debug.Log("Number of children: " + transform.childCount);
     }
 
     void Update()
@@ -32,11 +33,12 @@ public class ItemSlotInterac : MonoBehaviour
         }
     }
 
-    private void OnMouseDown()
+    void OnMouseDown()
     {
         // Start dragging when the mouse button is pressed
         isDragging = true;
         startPosition = transform.position; // Store the drag-start position
+        Debug.Log("Mouse down");
     }
 
     private void OnTriggerEnter2D(Collider2D other)
