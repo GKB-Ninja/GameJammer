@@ -4,8 +4,6 @@ using UnityEngine.SceneManagement;
 
 public class EventManager : MonoBehaviour
 {
-    public static EventManager Instance; // Singleton instance
-
     public TMP_Text textLog; // Reference to the TextMeshPro text log
     public PlayerStats playerStats; // Reference to the PlayerStats
     public GameObject eventPointPrefab; // Reference to the EventPoint prefab
@@ -16,26 +14,8 @@ public class EventManager : MonoBehaviour
 
     void Start()
     {
-        // Initialize the text log
-        textLog.text = "Event Log:\n";
-        SpawnEventPoints(); // Call the method to spawn event points
-    }
-
-    void SpawnEventPoints()
-    {
-        Camera mainCamera = Camera.main; // Get the main camera
-        float cameraHeight = 2f * mainCamera.orthographicSize; // Calculate the height of the camera view
-        float cameraWidth = cameraHeight * mainCamera.aspect; // Calculate the width based on the aspect ratio
-
-        Debug.Log($"Camera Width: {cameraWidth}, Camera Height: {cameraHeight}"); // Debug log
-
-        for (int i = 0; i < numberOfEventPoints; i++)
-        {
-            Vector2 randomPosition = new Vector2(Random.Range(-cameraWidth / 2, cameraWidth / 2), Random.Range(-cameraHeight / 2, cameraHeight / 2));
-            Debug.Log($"Spawning Event Point at: {randomPosition}"); // Debug log
-            GameObject eventPoint = Instantiate(eventPointPrefab, randomPosition, Quaternion.identity);
-            eventPoint.GetComponent<EventPoint>().eventManager = this; // Set the EventManager reference
-        }
+        textLog.text = "Event Log:\n";  // Initialize the text log
+        SpawnEventPoints();
     }
 
     public void TriggerEvent(string eventDescription)
@@ -43,7 +23,7 @@ public class EventManager : MonoBehaviour
         // Add the event description to the text log
         textLog.text += eventDescription + "\n";
 
-        // Update player stats based on the event
+        // Update player stats based on what event text contains on its description
         if (eventDescription.Contains("You encountered a rogue AI! Prepare for battle!"))
         {
             playerStats.TakeDamage(10); // Example: Lose 10 health in a battle
@@ -78,13 +58,30 @@ public class EventManager : MonoBehaviour
     }
 }
 
-    public void RestartGame()
+    public static void RestartGame()
     {
-        SceneManager.LoadScene("Scanning"); // Restart the game
+        SceneManager.LoadScene("MainMenu"); // Restart the game
     }
 
     public void ReturnToMainMenu()
     {
         SceneManager.LoadScene("MainMenu"); // Return to the main menu
+    }
+
+    private void SpawnEventPoints()
+    {
+        Camera mainCamera = Camera.main; // Get the main camera
+        float cameraHeight = 2f * mainCamera.orthographicSize; // Calculate the height of the camera view
+        float cameraWidth = cameraHeight * mainCamera.aspect; // Calculate the width based on the aspect ratio
+
+        Debug.Log($"Camera Width: {cameraWidth}, Camera Height: {cameraHeight}"); // Debug log
+
+        for (int i = 0; i < numberOfEventPoints; i++)
+        {
+            Vector2 randomPosition = new Vector2(Random.Range(-cameraWidth / 2, cameraWidth / 2), Random.Range(-cameraHeight / 2, cameraHeight / 2));
+            Debug.Log($"Spawning Event Point at: {randomPosition}"); // Debug log
+            GameObject eventPoint = Instantiate(eventPointPrefab, randomPosition, Quaternion.identity);
+            eventPoint.GetComponent<EventPoint>().eventManager = this; // Set the EventManager reference
+        }
     }
 }

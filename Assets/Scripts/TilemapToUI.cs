@@ -1,63 +1,115 @@
+using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
 public class TilemapToUI : MonoBehaviour
 {
-    public Tilemap tilemap; // Reference to the Tilemap
-    private GameObject canvas; // Reference to the Canvas
-    public GameObject imagePrefab; // Prefab for the UI Image
+    public Tilemap Tilemap;
+    public GameObject Canvas;
+    public GameObject ImagePrefab; // Prefab for the UI Image, which should have an empty Image component and "InvUI" tag
+    private HashSet<Vector3Int> tilePositions = new HashSet<Vector3Int>();
 
     void Start()
     {
-        canvas = tilemap.transform.parent.parent.gameObject;
-
-        ConvertTilesToUI();
+        // Subscribe to the tilemapTileChanged event
+        Tilemap.tilemapTileChanged += OnTileChanged;
     }
 
-    // Iterate through all the tiles in the Tilemap and create a UI Image for each one
-    void ConvertTilesToUI()
+    void OnDestroy()
     {
-        BoundsInt bounds = tilemap.cellBounds;
-        TileBase[] allTiles = tilemap.GetTilesBlock(bounds);
+        // Unsubscribe from the tilemapTileChanged event to prevent memory leaks after destruction
+        Tilemap.tilemapTileChanged -= OnTileChanged;
+    }
 
-        for (int x = 0; x < bounds.size.x; x++)
+    // Create a UI Image version of given tile's current sprite
+    public void CreateUIImage(Vector3Int tilePosition)
+    {
+        Sprite sprite = Tilemap.GetSprite(tilePosition);
+        if (sprite == null) return;
+
+        Vector3 spriteSize = GetTileSpriteWorldSize(tilePosition);
+        GameObject tileUI = Instantiate(ImagePrefab, Canvas.transform);
+        RectTransform rectTransform = tileUI.GetComponent<RectTransform>();
+
+        tileUI.GetComponent<Image>().sprite = sprite;
+        rectTransform.sizeDelta = spriteSize;
+        rectTransform.position = GetRealCellToWorld(tilePosition);
+        tileUI.transform.SetParent(Tilemap.transform, true);
+
+        tilePositions.Add(tilePosition);
+    }
+
+    public void RemoveUIImage(Vector3Int tilePosition)
+    {
+        if (!tilePositions.Contains(tilePosition))
         {
-            for (int y = 0; y < bounds.size.y; y++)
+            Debug.Log($"No UI Image found for tile position {tilePosition}. Cannot remove.");
+            return;
+        }
+
+        foreach (GameObject child in GameObject.FindGameObjectsWithTag("InvUI"))
+        {
+            if (child.transform.position == GetRealCellToWorld(tilePosition) && child.transform.parent == Tilemap.transform)
             {
-                TileBase tile = allTiles[x + y * bounds.size.x];
-                if (tile != null)
-                {
-                    Vector3Int tilePosition = new Vector3Int(x + bounds.xMin, y + bounds.yMin, 0);
-                    Sprite tileSprite = tilemap.GetSprite(tilePosition);
-                    
-                    if (tileSprite != null)
-                    {
-                        float tileWidth = (tileSprite.rect.width / tileSprite.pixelsPerUnit) * tilemap.transform.localScale.x;
-                        float tileHeight = (tileSprite.rect.height / tileSprite.pixelsPerUnit) * tilemap.transform.localScale.y;
-                        Vector2 TileSize = new Vector2(tileWidth, tileHeight);
-                        CreateUIImage(tileSprite, tilePosition, TileSize);
-                    }
-                }
+                Destroy(child);
+                tilePositions.Remove(tilePosition);
+                return;
             }
         }
     }
 
-    void CreateUIImage(Sprite sprite, Vector3Int tilePosition, Vector2 TileSize)
+    // This method is called whenever a tile is changed in any Tilemap
+    private void OnTileChanged(Tilemap tilemap, Tilemap.SyncTile[] syncTiles)
     {
-        // Instantiate a new UI Image
-        GameObject newImage = Instantiate(imagePrefab, canvas.transform);
-        Image imageComponent = newImage.GetComponent<Image>();
-        imageComponent.sprite = sprite;
-        newImage.GetComponent<RectTransform>().sizeDelta = TileSize;
+        if (tilemap != Tilemap) return;
 
-        // Set the initial position of the UI Image
-        RectTransform rectTransform = newImage.GetComponent<RectTransform>();
-        rectTransform.position = new Vector3(tilemap.tileAnchor.x * TileSize.x + tilemap.CellToWorld(tilePosition).x, tilemap.tileAnchor.y * TileSize.y + tilemap.CellToWorld(tilePosition).y, tilemap.CellToWorld(tilePosition).z);
+        foreach (Tilemap.SyncTile syncTile in syncTiles)
+        {
+            Vector3Int changedTilePos = syncTile.position;
+            if (!tilePositions.Contains(changedTilePos) && syncTile.tile != null)
+            {
+                tilePositions.Add(changedTilePos);
+                // Create a new UI Image after the current frame has ended
+                // Because Auto Tile Orientation (Merge) Rules haven't applied yet
+                StartCoroutine(CreateUIImageAfterFrame(changedTilePos));
+            }
+            else if (tilePositions.Contains(changedTilePos) && syncTile.tile == null)
+            {
+                // If the tile is already in the UI but now it's null, remove the UI Image
+                RemoveUIImage(changedTilePos);
+            }
+        }
+    }
 
-        // Make the UI Image a child of the corresponding tile
-        newImage.transform.SetParent(tilemap.transform, true);
+    // Clone the tile as a UI Image after the current frame has ended
+    private IEnumerator CreateUIImageAfterFrame(Vector3Int tilePosition)
+    {
+        yield return new WaitForEndOfFrame();
+        CreateUIImage(tilePosition);
+    }
+
+    private Vector3 GetTileSpriteWorldSize(Vector3Int tilePosition)
+    {
+        float tileSpriteWorldWidth = Tilemap.cellSize.x * Tilemap.transform.localScale.x;
+        float tileSpriteWorldHeight = Tilemap.cellSize.y * Tilemap.transform.localScale.y;
+        float tileSpriteWorldDepth = Tilemap.cellSize.z * Tilemap.transform.localScale.z;
+        return new Vector3(tileSpriteWorldWidth, tileSpriteWorldHeight, tileSpriteWorldDepth);
+    }
+
+    // Get the world position of the cell, taking into account the tile anchor and orientation which CellToWorld doesn't
+    private Vector3 GetRealCellToWorld(Vector3Int cellPosition)
+    {
+        Vector3 spriteSize = GetTileSpriteWorldSize(cellPosition);
+        Vector3 worldPos = Tilemap.CellToWorld(cellPosition);
+        Vector3 anchor = Tilemap.tileAnchor;
+        Matrix4x4 orientation = Tilemap.orientationMatrix;
+        // Calculate the final position because CellToWorld does not take the tile anchor into account
+        return new Vector3(
+            anchor.x * spriteSize.x + worldPos.x + orientation.m03, 
+            anchor.y * spriteSize.y + worldPos.y + orientation.m13,
+            anchor.z * spriteSize.z + worldPos.z + orientation.m23
+        );
     }
 }

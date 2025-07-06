@@ -1,12 +1,9 @@
 fileFormatVersion: 2
-guid: 429a5077b3f5bf544a5b9f2c9866f47c
+guid: aff0e97680babae4a9ec5eb967bb3838
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - Tilemap: {instanceID: 0}
-  - Canvas: {instanceID: 0}
-  - ImagePrefab: {instanceID: 0}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

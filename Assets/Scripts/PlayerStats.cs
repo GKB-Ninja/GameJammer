@@ -5,6 +5,7 @@ public class PlayerStats : MonoBehaviour
 {
     public int health = 100;
     public int credits = 50;
+    public bool debugMode = false; // For us developers to test Scanning scene over and over
 
     public TMP_Text healthText;
     public TMP_Text creditsText;
@@ -12,8 +13,14 @@ public class PlayerStats : MonoBehaviour
 
     void Start()
     {
+        if (debugMode)
+        {
+            PlayerPrefs.SetInt("hp", health);
+            PlayerPrefs.SetInt("credits", credits);
+        }
         credits = PlayerPrefs.GetInt("credits");
-        health = PlayerPrefs.GetInt("hp");
+        health = PlayerPrefs.GetInt("hp"); 
+
         UpdateUI();
     }
 

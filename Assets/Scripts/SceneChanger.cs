@@ -4,13 +4,13 @@ using System.Collections;
 
 public class SceneChanger : MonoBehaviour
 {
-    public string sceneToLoadd; // Variable to hold the scene name to load
+    public string SceneToLoad; // Variable to hold the scene name to load
     public float delay = 0f; // Variable to hold the delay duration
 
     // Method to change the scene with a delay
     public void ChangeScene()
     {
-        if (!string.IsNullOrEmpty(sceneToLoadd))
+        if (!string.IsNullOrEmpty(SceneToLoad))
         {
             StartCoroutine(ChangeSceneWithDelay());
         }
@@ -23,6 +23,6 @@ public class SceneChanger : MonoBehaviour
     private IEnumerator ChangeSceneWithDelay()
     {
         yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene(sceneToLoadd);
+        SceneManager.LoadScene(SceneToLoad);
     }
 }

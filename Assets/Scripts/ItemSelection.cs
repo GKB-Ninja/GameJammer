@@ -1,28 +1,31 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class ItemSelection : MonoBehaviour
 {
-    public int credits = 50; // Starting credits
+    public int credits = 50;
+    public int day = 1;
+    public bool debugMode = false; // For us developers to test ItemSelection scene over and over
     public TMP_Text creditsText; // UI Text to display credits
-    public TMP_Text dayCount;
+    public TMP_Text dayCount; // UI Text to display day
 
 
     void Start()
     {
-        // Load credits from PlayerPrefs
-        if (PlayerPrefs.GetInt("day") != 1)
+        // Load the credits and day from the PlayerPrefs or set them to the default values in debug mode
+
+        if (debugMode)
         {
-            credits = PlayerPrefs.GetInt("credits", credits);
-            dayCount.text = "Day: " + PlayerPrefs.GetInt("day");
+            PlayerPrefs.SetInt("credits", credits);
+            PlayerPrefs.SetInt("day", day);
         }
         else
         {
-            dayCount.text = "Day: 1";
-        }   
-        SaveCredits();
-        UpdateCreditsUI();
+            credits = PlayerPrefs.GetInt("credits");
+            day = PlayerPrefs.GetInt("day");
+        }
+
+        UpdateUIs();
     }
 
     public void BuyWeapon()
@@ -31,8 +34,8 @@ public class ItemSelection : MonoBehaviour
         {
             credits -= 10;
             Debug.Log("You bought a Weapon!");
-            UpdateCreditsUI();
-            SaveCredits();
+            UpdateUIs();
+            SaveUtility.SaveInt("credits", credits);
             PlayerPrefs.SetInt("weaponItem", 1);
             Debug.Log("Weapon Item: " + PlayerPrefs.GetInt("weaponItem"));
         }
@@ -48,8 +51,8 @@ public class ItemSelection : MonoBehaviour
         {
             credits -= 15;
             Debug.Log("You bought Armor!");
-            UpdateCreditsUI();
-            SaveCredits();
+            UpdateUIs();
+            SaveUtility.SaveInt("credits", credits);
             PlayerPrefs.SetInt("armorItem", 1);
             Debug.Log("Armor Item: " + PlayerPrefs.GetInt("armorItem"));
         }
@@ -65,8 +68,8 @@ public class ItemSelection : MonoBehaviour
         {
             credits -= 20;
             Debug.Log("You bought a Radar!");
-            UpdateCreditsUI();
-            SaveCredits();
+            UpdateUIs();
+            SaveUtility.SaveInt("credits", credits);
             PlayerPrefs.SetInt("radarItem", 1);
             Debug.Log("Radar Item: " + PlayerPrefs.GetInt("radarItem"));
         }
@@ -76,14 +79,9 @@ public class ItemSelection : MonoBehaviour
         }
     }
 
-    void UpdateCreditsUI()
+    void UpdateUIs()
     {
         creditsText.text = "Credits: " + credits;
-    }
-
-    void SaveCredits()
-    {
-        PlayerPrefs.SetInt("credits", credits);
-        PlayerPrefs.Save();
+        dayCount.text = "Day: " + day;
     }
 }
