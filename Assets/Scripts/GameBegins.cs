@@ -30,6 +30,7 @@ public class GameBegins : MonoBehaviour
                 Starter_Inventory[x, y] = -1;
             }
         }
+
         // For debugging purposes, fill the inventory matrix with items from DebugItemRow_Col_ID
         if (DebugInventory && DebugItemRow_Col_ID != null)
         {
@@ -52,6 +53,7 @@ public class GameBegins : MonoBehaviour
                 Starter_Inventory[debugItem.x, debugItem.y] = debugItem.z;
             }
         }
+
         SaveUtility.SaveMatrix("inventory", Starter_Inventory);
     }
 }

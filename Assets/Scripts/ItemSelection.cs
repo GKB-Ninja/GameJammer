@@ -12,7 +12,7 @@ public class ItemSelection : MonoBehaviour
 
     void Start()
     {
-        // Load the credits and day from the PlayerPrefs or set them to the default values in debug mode
+        // Load the credits and day from the PlayerPrefs or set them to the default values in debug sfx
 
         if (debugMode)
         {
